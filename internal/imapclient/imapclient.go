@@ -90,8 +90,8 @@ func login(c *imaplib.Client, config Config) (error) {
 	return nil
 }
 
-func fetchEmails(c *imaplib.Client, mbox string, emailLimit int) ([]*imap.FetchMessage, error) {
-	var messages []*imap.FetchMessage
+func fetchEmails(c *imaplib.Client, mbox string, emailLimit int) ([]*imaplib.FetchMessageBuffer, error) {
+	var messages []*imaplib.FetchMessageBuffer
 
 	selectedMbox, err := c.Select(mbox, nil).Wait()
 	if err != nil {
@@ -106,7 +106,8 @@ func fetchEmails(c *imaplib.Client, mbox string, emailLimit int) ([]*imap.FetchM
 		} else {
 			start = last - uint32(emailLimit) + 1
 		}
-		seqSet := imap.SeqSetRange(start, last)
+		var seqSet imap.SeqSet
+		seqSet.AddRange(start, last)
 
 		fetchOptions := &imap.FetchOptions{Envelope: true}
 		messages, err = c.Fetch(seqSet, fetchOptions).Collect()
