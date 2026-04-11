@@ -1,7 +1,11 @@
 package model
 
-type EmailsStruct struct {
+import (
+	"time"
+)
+
+type Email struct {
 	Subject string
-	From string
-	Date string
+	From    string
+	Date    time.Time
 }
