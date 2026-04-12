@@ -45,8 +45,7 @@ func FetchLatestEmails(limit int, config Config) ([]model.Email, error) {
 	}
 
 	// Ler dados (remetente, assunto, data)
-	for _, message := range messages {
-		var from string
+	for _, message := range messages { var from string
 
 		if len(message.Envelope.From) > 0 {
 			address := message.Envelope.From[0]

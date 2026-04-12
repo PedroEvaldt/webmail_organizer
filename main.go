@@ -27,6 +27,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	seen_uids, err := storage.LoadSeenUIDS("data/seen_uids.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = storage.SaveSeenUIDs(emails, seen_uids, "data/seen_uids.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = storage.SaveEmailsToFile(emails, "data/emails.txt")
 	if err != nil {
 		log.Fatal(err)
