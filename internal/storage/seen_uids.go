@@ -12,6 +12,9 @@ import (
 func LoadSeenUIDS(filepath string) (map[uint32]bool, error){
 	file, err := os.Open(filepath)
 	if err != nil {
+		if os.IsNotExist(err){
+			return map[uint32]bool{}, nil
+		}
 		return nil, fmt.Errorf("failed opening %s: %w", filepath, err)
 	}
 	defer file.Close()
