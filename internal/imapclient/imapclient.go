@@ -58,6 +58,7 @@ func FetchLatestEmails(limit int, config Config) ([]model.Email, error) {
 		}
 
 		email := model.Email{
+			UID:     uint32(message.UID),
 			Subject: message.Envelope.Subject,
 			From: from,
 			Date: message.Envelope.Date,
@@ -97,20 +98,21 @@ func fetchEmails(c *imaplib.Client, mbox string, emailLimit int) ([]*imaplib.Fet
 	if err != nil {
 		return nil, fmt.Errorf("failed to select %s: %w", mbox, err)
 	}
+
+	criteria := &imap.SearchCriteria{
+		NotFlag: []imap.Flag{imap.FlagSeen},
+	}
 	if selectedMbox.NumMessages > 0 {
 
-		last := selectedMbox.NumMessages
-		var start uint32
-		if last <= uint32(emailLimit) {
-			start = 1
-		} else {
-			start = last - uint32(emailLimit) + 1
+		searchData, err := c.UIDSearch(criteria, nil).Wait()
+		if err != nil {
+			return nil, fmt.Errorf("failed to catch uids: %w", err)
 		}
-		var seqSet imap.SeqSet
-		seqSet.AddRange(start, last)
 
-		fetchOptions := &imap.FetchOptions{Envelope: true}
-		messages, err = c.Fetch(seqSet, fetchOptions).Collect()
+		uidSet := imap.UIDSetNum(searchData.AllUIDs()...)
+
+		fetchOptions := &imap.FetchOptions{Envelope: true, Flags: true}
+		messages, err = c.Fetch(uidSet, fetchOptions).Collect()
 		if err != nil {
 			return nil, fmt.Errorf("failed fetching email: %w", err)
 		}

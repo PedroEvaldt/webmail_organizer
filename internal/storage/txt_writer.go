@@ -16,7 +16,8 @@ func SaveEmailsToFile(emails []model.Email, filename string) error {
 
 	for _, email := range emails {
 		_, err := fmt.Fprintf(file,
-			"From: %s\nSubject: %s\nDate: %v\n--------------------\n",
+		"UID: %v\nFrom: %s\nSubject: %s\nDate: %v\n--------------------\n",
+			email.UID,
 			email.From,
 			email.Subject,
 			email.Date,
@@ -25,5 +26,4 @@ func SaveEmailsToFile(emails []model.Email, filename string) error {
 			return fmt.Errorf("error writing to file: %w", err)
 		}
 	}
-	return nil
-}
+	return nil }

@@ -4,8 +4,7 @@ import (
 	"time"
 )
 
-type Email struct {
+type EmailsStruct struct {
 	Subject string
-	From    string
-	Date    time.Time
-}
+	From string
+	Date time.Time }
