@@ -5,6 +5,7 @@ import (
 	"os"
 	"github.com/joho/godotenv"
 
+	"webmail_organizer/internal/notifier"
 	"webmail_organizer/internal/imapclient"
 	"webmail_organizer/internal/storage"
 )
@@ -19,6 +20,7 @@ func main() {
 
 	username := os.Getenv("USERNAME")
 	password := os.Getenv("PASSWORD")
+	webhookURL := os.Getenv("DISCORD_WEBHOOK_URL")
 
 	config := imapclient.NewConfig("imap.inf.ufrgs.br", 993, username, password)
 
@@ -32,13 +34,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = storage.SaveSeenUIDs(emails, seen_uids, "data/seen_uids.txt")
+	unseen_emails, err := storage.SaveSeenUIDs(emails, seen_uids, "data/seen_uids.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = storage.SaveEmailsToFile(emails, "data/emails.txt")
-	if err != nil {
-		log.Fatal(err)
+
+	if len(unseen_emails) > 0{
+		err = notifier.SendNewEmailsNotification(unseen_emails, webhookURL)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = storage.SaveEmailsToFile(unseen_emails, "data/emails.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		print("Nenhum email novo")
 	}
+
 }
