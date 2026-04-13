@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"webmail_organizer/internal/model"
@@ -59,7 +60,8 @@ func SendNewEmailsNotification(emails []model.Email, webhookURL string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("discord returned status %d", resp.StatusCode)
+		respBody, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("discord returned status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	return nil
