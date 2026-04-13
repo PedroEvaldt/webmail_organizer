@@ -22,7 +22,7 @@ func NewConfig(host string, port int, username, password string) Config {
 	return Config{Host: host, Port: port, Username: username, Password: password}
 }
 
-func FetchLatestEmails(limit int, config Config) ([]model.Email, error) {
+func FetchLatestEmails(config Config) ([]model.Email, error) {
 	// Conectar no servidor
 	serverIP := fmt.Sprintf("%s:%d", config.Host, config.Port)
 	c, err := connect(serverIP)
@@ -39,13 +39,14 @@ func FetchLatestEmails(limit int, config Config) ([]model.Email, error) {
 
 	var emails []model.Email
 	// Buscar emails
-	messages, err := fetchEmails(c, "INBOX", limit)
+	messages, err := fetchEmails(c, "INBOX")
 	if err != nil {
 		return nil, err
 	}
 
 	// Ler dados (remetente, assunto, data)
-	for _, message := range messages { var from string
+	for _, message := range messages {
+		var from string
 
 		if len(message.Envelope.From) > 0 {
 			address := message.Envelope.From[0]
@@ -82,7 +83,7 @@ func connect(serverIP string) (*imaplib.Client, error) {
 	return c, nil
 }
 
-func login(c *imaplib.Client, config Config) (error) {
+func login(c *imaplib.Client, config Config) error {
 	if err := c.Login(config.Username, config.Password).Wait(); err != nil {
 		return fmt.Errorf("failed to login: %w", err)
 	}
@@ -90,7 +91,7 @@ func login(c *imaplib.Client, config Config) (error) {
 	return nil
 }
 
-func fetchEmails(c *imaplib.Client, mbox string, emailLimit int) ([]*imaplib.FetchMessageBuffer, error) {
+func fetchEmails(c *imaplib.Client, mbox string) ([]*imaplib.FetchMessageBuffer, error) {
 	var messages []*imaplib.FetchMessageBuffer
 
 	selectedMbox, err := c.Select(mbox, nil).Wait()

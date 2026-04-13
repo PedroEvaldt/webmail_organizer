@@ -26,4 +26,5 @@ func SaveEmailsToFile(emails []model.Email, filename string) error {
 			return fmt.Errorf("error writing to file: %w", err)
 		}
 	}
-	return nil }
+	return nil
+}

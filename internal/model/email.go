@@ -5,8 +5,8 @@ import (
 )
 
 type Email struct {
-	UID uint32
-	Seen bool
+	UID     uint32
 	Subject string
-	From string
-	Date time.Time }
+	From    string
+	Date    time.Time
+}
