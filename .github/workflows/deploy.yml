@@ -1,0 +1,37 @@
+name: Build and Deploy to pi
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.0"
+
+      - name: Cross-compile for ARM64
+        run: |
+          GOOS=linux GOARCH=arm64 go build -o webmail_organizer .
+
+      - name: Deploy to Raspberry Pi
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/pi_deploy
+          chmod 600 ~/.ssh/pi_deploy
+
+          SSH_OPTS="-o StrictHostKeyChecking=no -i ~/.ssh/pi_deploy"
+          TARGET="${{ secrets.PI_USER }}@${{ secrets.PI_HOST}}"
+          REMOTE_DIR="/home/${{ secrets.PI_USER }}/pi/webmail_organizer"
+          
+          scp $SSH_OPTS webmail_organizer "${TARGET}:${REMOTE_DIR}/webmail_organizer.new"
+
+          ssh $SSH_OPTS "${TARGET}" "cd ${REMOTE_DIR} && mv webmail_organizer.new webmail_organizer && chmod +x webmail_organizer"
+
+          echo "Deploy concluído"
