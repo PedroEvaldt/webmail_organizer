@@ -20,6 +20,11 @@ jobs:
         run: |
           GOOS=linux GOARCH=arm64 go build -o webmail_organizer .
 
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
       - name: Deploy to Raspberry Pi
         run: |
           mkdir -p ~/.ssh
