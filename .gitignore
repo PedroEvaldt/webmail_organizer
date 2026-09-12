@@ -2,3 +2,8 @@
 *.txt
 .claude
 CLAUDE.md
+
+# binários compilados
+/webmail_organizer
+/webmail_organizer_arm64
+/webmail_organizer_arm
